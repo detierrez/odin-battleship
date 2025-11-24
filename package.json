@@ -1,5 +1,5 @@
 {
-  "name": "template",
+  "name": "@detierrez/odin-battleship",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
@@ -34,5 +34,14 @@
   "description": "",
   "dependencies": {
     "modern-normalize": "^3.0.1"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/detierrez/odin-battleship.git"
+  },
+  "keywords": [],
+  "bugs": {
+    "url": "https://github.com/detierrez/odin-battleship/issues"
+  },
+  "homepage": "https://github.com/detierrez/odin-battleship#readme"
 }
