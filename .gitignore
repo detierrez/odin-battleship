@@ -2,3 +2,4 @@ node_modules
 dist
 COMMIT_EDITMSG
 instructions.md
+.vscode
