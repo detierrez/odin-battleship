@@ -1,23 +1,35 @@
+const MISSED_SHOT = "missed";
+
 class Gameboard {
   constructor(size = 10) {
     this.board = arrayOfNulls(size).map(() => arrayOfNulls(size));
+    this.ships = [];
   }
 
-  shipAt(row, col) {
+  itemAt(row, col) {
     return this.board[row][col];
   }
 
   placeShip(ship, row, col) {
     this.board[row][col] = ship;
+    this.ships.push(ship);
   }
 
   receiveAttack(row, col) {
     const item = this.board[row][col];
-    if (item !== null) return;
+    if (item === MISSED_SHOT) return;
     if (item === null) {
-      this[row][col] = false;
+      this.board[row][col] = MISSED_SHOT;
+      return;
     }
-    item.hit()
+    item.hit();
+  }
+
+  get areAllShipsSunk() {
+    for (const ship of this.ships) {
+      if (!ship.isSunk) return false;
+    }
+    return true;
   }
 }
 
