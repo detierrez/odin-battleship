@@ -24,7 +24,7 @@ export function initializeUI(players, onClick) {
 
 export function updateUI(players, currentPlayer) {
   for (const player of players) {
-    const cells = renderCells(player.gameboard.board);
+    const cells = renderCells(player.gameboard);
     const selector = `.gameboard[data-player-tag="${player.name}"]`;
     const gameboard = document.querySelector(selector);
     gameboard.replaceChildren(...cells);
@@ -36,14 +36,12 @@ export function clearUI() {
   document.body.innerHTML = "";
 }
 
-function renderCells(board) {
-  const size = board.length;
+function renderCells(gameboard) {
+  const size = gameboard.size;
   const cells = [];
-  for (let row = 0; row < size; row++) {
-    for (let col = 0; col < size; col++) {
-      const item = board[row][col];
-      const text = item === "missed" ? "-" : item === null ? " " : "S";
-      const cell = renderCell(row, col, text);
+  for (let x = 0; x < size; x++) {
+    for (let y = 0; y < size; y++) {
+      const cell = renderCell(x, y, gameboard.getCell(x, y));
       cells.push(cell);
     }
   }

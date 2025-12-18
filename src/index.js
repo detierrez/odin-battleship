@@ -17,8 +17,7 @@ for (const gb of [gb1, gb2]) {
   });
 }
 
-
-const stage = "prepare"
+const stage = "prepare";
 const isSoloGame = true;
 const players = [new Player("Player", gb1), new Player("StockBird", gb2)];
 let currentPlayer = players[0];
@@ -53,7 +52,11 @@ function onAttack(attacked, row, col) {
     return;
   }
 
-  attacked.gameboard.receiveAttack(row, col);
+  const hit = attacked.gameboard.receiveAttack(row, col);
+  if (!hit) {
+    console.log("can't hit twice!");
+    return;
+  }
   if (attacked.gameboard.hasAllShipsSunk) {
     clearUI();
     return;

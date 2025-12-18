@@ -1,20 +1,36 @@
-const MISSED_SHOT = "missed";
-
 class Gameboard {
   constructor(size = 10) {
     this.board = arrayOfNulls(size).map(() => arrayOfNulls(size));
+    this.size = this.board.length;
+    this.maxIndex = this.board.length - 1;
     this.ships = [];
+    this.firedCoords = new Set();
   }
 
-  itemAt(row, col) {
-    return this.board[row][col];
+  getCell(x, y) {
+    const cellValue = this.board[x][y];
+    const isHit = this.firedCoords.has(`${x},${y}`);
+
+    if (cellValue === null) {
+      if (isHit) {
+        return "-";
+      } else {
+        return " ";
+      }
+    } else {
+      if (isHit) {
+        return "X";
+      } else {
+        return "S";
+      }
+    }
   }
 
-  placeShip(ship, row, col, isVertical = false) {
-    if (!this.canPlaceShip(ship, row, col, isVertical)) return false;
+  placeShip(ship, x, y, isVertical = false) {
+    if (!this.canPlaceShip(ship, x, y, isVertical)) return false;
 
     for (let i = 0; i < ship.length; i++) {
-      this.board[row + i * isVertical][col + i * !isVertical] = ship;
+      this.board[x + i * isVertical][y + i * !isVertical] = ship;
     }
 
     this.ships.push(ship);
@@ -22,39 +38,39 @@ class Gameboard {
     return true;
   }
 
-  canPlaceShip(ship, row, col, isVertical) {
+  canPlaceShip(ship, x, y, isVertical) {
     // ship can't get out of range
-    if (row < 0 || col < 0) return false;
+    if (x < 0 || y < 0) return false;
 
-    const end = (isVertical ? row : col) + ship.length - 1;
-    const maxIndex = this.board.length - 1;
-    if (end > maxIndex) return false;
+    const end = (isVertical ? x : y) + ship.length - 1;
+    if (end > this.maxIndex) return false;
 
-    // ships can't touch on the ends
-    const hasSternSpace = isVertical ? row - 1 >= 0 : col - 1 >= 0;
-    let offRow = isVertical ? row - 1 : row;
-    let offCol = isVertical ? col : col - 1;
-    if (hasSternSpace && this.board[offRow][offCol] !== null) return false;
+    let x_, y_;
+    // it's rear can't touch another ship
+    const hasSternSpace = isVertical ? x - 1 >= 0 : y - 1 >= 0;
+    [x_, y_] = isVertical ? [x - 1, y] : [x, y - 1];
+    if (hasSternSpace && this.board[x_][y_] !== null) return false;
 
-    const hasBowSpace = end + 1 <= maxIndex;
-    offRow = isVertical ? end + 1 : row;
-    offCol = isVertical ? col : end + 1;
-    if (hasBowSpace && this.board[offRow][offCol] !== null) return false;
+    // it's tip can't touch another ship
+    const hasBowSpace = end + 1 <= this.maxIndex;
+    [x_, y_] = isVertical ? [end + 1, y] : [x, end + 1];
+    if (hasBowSpace && this.board[x_][y_] !== null) return false;
 
     // ships can't touch on the sides
-    const hasPortSpace = isVertical ? col - 1 >= 0 : row - 1 >= 0;
-    const offStart = hasPortSpace ? -1 : 0;
+    const hasPortSpace = isVertical ? y - 1 >= 0 : x - 1 >= 0;
+    const wStart = hasPortSpace ? -1 : 0;
 
     const hasStarbSpace = isVertical
-      ? col + 1 <= maxIndex
-      : row + 1 <= maxIndex;
-    const offEnd = hasStarbSpace ? 1 : 0;
+      ? y + 1 <= this.maxIndex
+      : x + 1 <= this.maxIndex;
+    const wEnd = hasStarbSpace ? 1 : 0;
 
-    for (let i = 0; i < ship.length; i++) {
-      for (let j = offStart; j <= offEnd; j++) {
-        offRow = isVertical ? row + i : row + j;
-        offCol = isVertical ? col + j : col + i;
-        if (this.board[offRow][offCol] !== null) return false;
+    for (let lOffset = 0; lOffset < ship.length; lOffset++) {
+      for (let wOffset = wStart; wOffset <= wEnd; wOffset++) {
+        [x_, y_] = isVertical
+          ? [x + lOffset, y + wOffset]
+          : [x + wOffset, y + lOffset];
+        if (this.board[x_][y_] !== null) return false;
       }
     }
 
@@ -62,26 +78,26 @@ class Gameboard {
   }
 
   randomPlace(ship) {
-    const maxIndex = this.board.length - 1;
-
     while (true) {
-      const rndRow = randInt(maxIndex);
-      const rndCol = randInt(maxIndex);
+      const rndX = randInt(this.maxIndex);
+      const rndY = randInt(this.maxIndex);
       const rndDir = randBool();
-      if (this.placeShip(ship, rndRow, rndCol, rndDir)) {
+      if (this.placeShip(ship, rndX, rndY, rndDir)) {
         return;
       }
     }
   }
 
-  receiveAttack(row, col) {
-    const item = this.board[row][col];
-    if (item === MISSED_SHOT) return;
-    if (item === null) {
-      this.board[row][col] = MISSED_SHOT;
-      return;
-    }
-    item.hit();
+  receiveAttack(x, y) {
+    // return if cell has been attacked already
+    const key = `${x},${y}`;
+    if (this.firedCoords.has(key)) return false;
+    this.firedCoords.add(key);
+
+    const value = this.board[x][y];
+    if (value !== null) value.hit();
+
+    return true;
   }
 
   get hasAllShipsSunk() {
