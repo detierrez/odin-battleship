@@ -51,14 +51,14 @@ describe("ship attacking", () => {
 test("reports all ships have been sunk", () => {
   const gb = new Gameboard(10);
 
-  expect(gb.areAllShipsSunk).toBe(true);
+  expect(gb.hasAllShipsSunk).toBe(true);
 
   const ship = { model: "genericObject", isSunk: true };
   gb.placeShip(ship, 0, 0);
-  expect(gb.areAllShipsSunk).toBe(true);
+  expect(gb.hasAllShipsSunk).toBe(true);
 
   ship.isSunk = false;
-  expect(gb.areAllShipsSunk).toBe(false);
+  expect(gb.hasAllShipsSunk).toBe(false);
 });
 
 it("calls", () => {});

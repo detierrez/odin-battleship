@@ -1,0 +1,13 @@
+.gameboard {
+  --size: 1;
+  height: 40vw;
+  aspect-ratio: 1;
+  display: grid;
+  grid-template-columns: repeat(var(--size), 1fr);
+  border: 1px solid red;
+
+  .cell {
+    font-size: 0.5rem;
+    border: 1px solid blue;
+  }
+}
